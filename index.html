@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Welcome · Little Garage Mahal</title>
+<link rel="icon" href="../favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Palette copied from the guest guide */
+  :root {
+    --charcoal: #2a2a2a;
+    --charcoal-soft: #555555;
+    --gold: #EAA731;
+    --cream: #e9eaec;
+    --white: #ffffff;
+    --green: #445e45;
+    --line: #cfd1d4;
+    --muted-on-dark: #b9bbbf;
+    /* 1 "unit" = 1% of a 16:9 screen's width, whatever the TV resolution */
+    --u: min(1vw, 1.7778vh);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--cream); overflow: hidden; }
+  body {
+    font-family: Manrope, system-ui, sans-serif;
+    color: var(--charcoal);
+    display: grid; place-items: center;
+    cursor: none;
+  }
+  .screen {
+    width: calc(var(--u) * 100); height: calc(var(--u) * 56.25);
+    padding: calc(var(--u) * 3.2) calc(var(--u) * 3.6);
+    display: grid; grid-template-columns: 1.42fr 1fr; grid-template-rows: 100%;
+    gap: calc(var(--u) * 3);
+    transition: transform 4s ease;
+  }
+
+  /* ---------- left column ---------- */
+  .left { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .eyebrow {
+    display: flex; align-items: center; gap: calc(var(--u) * 1);
+    font-size: calc(var(--u) * 1.15); font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--charcoal-soft);
+  }
+  .eyebrow .dot { width: calc(var(--u) * .7); height: calc(var(--u) * .7); border-radius: 50%; background: var(--gold); }
+  .greeting { margin-top: calc(var(--u) * 1.8); }
+  .hello { font-size: calc(var(--u) * 2.6); font-weight: 600; color: var(--charcoal-soft); line-height: 1.1; }
+  .name {
+    font-size: calc(var(--u) * 6.6); font-weight: 800; line-height: 1.05;
+    letter-spacing: -.02em; white-space: nowrap;
+  }
+  .name .accent { color: var(--gold); }
+  .dates {
+    margin-top: calc(var(--u) * .8);
+    font-size: calc(var(--u) * 1.6); font-weight: 600; color: var(--green);
+  }
+  .note {
+    margin-top: calc(var(--u) * .9);
+    font-size: calc(var(--u) * 1.5); font-weight: 500; color: var(--charcoal-soft);
+  }
+  .note:empty, .dates:empty { display: none; }
+
+  .cards {
+    margin-top: auto; padding-top: calc(var(--u) * 1.4);
+    display: grid; grid-template-columns: 1.75fr 1fr; gap: calc(var(--u) * 1.4);
+  }
+  .card {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: calc(var(--u) * 1.2); padding: calc(var(--u) * 1.4) calc(var(--u) * 1.7);
+  }
+  .label {
+    font-size: calc(var(--u) * .95); font-weight: 800; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--charcoal-soft);
+  }
+  .wifi { display: flex; gap: calc(var(--u) * 1.8); align-items: center; }
+  .wifi .text { min-width: 0; flex: 1; }
+  .big { font-size: calc(var(--u) * 1.65); font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kv + .kv { margin-top: calc(var(--u) * .9); }
+  .kv .label { margin-bottom: calc(var(--u) * .3); }
+  .scan { margin-top: calc(var(--u) * .8); font-size: calc(var(--u) * 1.05); color: var(--charcoal-soft); font-weight: 600; }
+  .qr {
+    flex: none; width: calc(var(--u) * 9); height: calc(var(--u) * 9);
+    display: grid; place-items: center;
+  }
+  .qr svg, .qr img { width: 100%; height: 100%; display: block; }
+  .times { display: flex; flex-direction: column; justify-content: center; }
+  .time { font-size: calc(var(--u) * 2.3); font-weight: 800; line-height: 1.1; }
+  .times .kv + .kv { margin-top: calc(var(--u) * 1.3); }
+
+  .checklist {
+    margin-top: calc(var(--u) * 1.4);
+    background: transparent; border: 1px solid var(--line);
+    border-radius: calc(var(--u) * 1.2); padding: calc(var(--u) * 1.2) calc(var(--u) * 1.7);
+    transition: background .6s, border-color .6s;
+  }
+  .checklist.today { background: var(--white); border-color: var(--gold); border-width: 2px; }
+  .checklist ul {
+    list-style: none; margin-top: calc(var(--u) * .7);
+    display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * .55) calc(var(--u) * 2);
+  }
+  .checklist li {
+    display: flex; gap: calc(var(--u) * .8); align-items: baseline;
+    font-size: calc(var(--u) * 1.15); font-weight: 600; line-height: 1.3; white-space: nowrap;
+  }
+  .checklist li::before {
+    content: ""; flex: none; width: calc(var(--u) * .8); height: calc(var(--u) * .8);
+    border: 2px solid var(--gold); border-radius: calc(var(--u) * .2);
+    transform: translateY(calc(var(--u) * .05));
+  }
+  .tv-hint {
+    margin-top: calc(var(--u) * 1.1);
+    font-size: calc(var(--u) * 1.05); font-weight: 600; color: var(--charcoal-soft);
+  }
+  .tv-hint b {
+    display: inline-block; background: var(--charcoal); color: var(--white);
+    padding: calc(var(--u) * .15) calc(var(--u) * .8); border-radius: calc(var(--u) * .5);
+    font-weight: 700; margin: 0 calc(var(--u) * .2);
+  }
+
+  /* ---------- right column ---------- */
+  .right {
+    background: var(--charcoal); color: var(--white);
+    border-radius: calc(var(--u) * 1.6);
+    padding: calc(var(--u) * 2.4) calc(var(--u) * 2.6);
+    display: flex; flex-direction: column; min-width: 0; min-height: 0;
+  }
+  .right .eyebrow { color: var(--gold); }
+  .slides { position: relative; flex: 1; margin-top: calc(var(--u) * 1.6); }
+  .slide {
+    position: absolute; inset: 0;
+    opacity: 0; transform: translateY(calc(var(--u) * .8));
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .slide.on { opacity: 1; transform: none; }
+  .area { font-size: calc(var(--u) * 2.8); font-weight: 800; line-height: 1.05; letter-spacing: -.01em; }
+  .where { margin-top: calc(var(--u) * .5); font-size: calc(var(--u) * 1.2); font-weight: 600; color: var(--muted-on-dark); }
+  .spots { list-style: none; margin-top: calc(var(--u) * 1.6); }
+  .spots li + li { margin-top: calc(var(--u) * .9); }
+  .spot, .spot-note, .where { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spot { font-size: calc(var(--u) * 1.45); font-weight: 700; line-height: 1.2; }
+  .spot-note { font-size: calc(var(--u) * 1.05); font-weight: 500; color: var(--muted-on-dark); line-height: 1.3; }
+  .dots { display: flex; gap: calc(var(--u) * .6); margin: calc(var(--u) * 1) 0 calc(var(--u) * 1.6); }
+  .dots i {
+    width: calc(var(--u) * .65); height: calc(var(--u) * .65); border-radius: 50%;
+    background: #4a4a4a; transition: background .6s, width .6s;
+  }
+  .dots i.on { background: var(--gold); width: calc(var(--u) * 2); border-radius: calc(var(--u) * .4); }
+  .guide {
+    display: flex; gap: calc(var(--u) * 1.6); align-items: center;
+    border-top: 1px solid #444; padding-top: calc(var(--u) * 1.6);
+  }
+  .guide .qr { width: calc(var(--u) * 7); height: calc(var(--u) * 7); background: var(--white); border-radius: calc(var(--u) * .8); padding: calc(var(--u) * .55); }
+  .guide-title { font-size: calc(var(--u) * 1.45); font-weight: 800; }
+  .guide-sub { margin-top: calc(var(--u) * .3); font-size: calc(var(--u) * 1.02); color: var(--muted-on-dark); line-height: 1.35; }
+  .guide-sub strong { color: var(--white); font-weight: 700; }
+
+  .announce {
+    display: inline-block; margin-top: calc(var(--u) * 1.6);
+    background: var(--gold); color: var(--charcoal);
+    font-size: calc(var(--u) * 1.4); font-weight: 800;
+    padding: calc(var(--u) * .7) calc(var(--u) * 1.6); border-radius: calc(var(--u) * .7);
+  }
+  .announce:empty { display: none; }
+</style>
+</head>
+<body>
+<main class="screen" id="screen">
+  <section class="left">
+    <div class="eyebrow"><span class="dot"></span>Little Garage Mahal · East Nashville</div>
+
+    <div class="greeting">
+      <div class="hello" id="hello">Welcome to the</div>
+      <div class="name" id="name">Little Garage Mahal</div>
+      <div class="dates" id="dates"></div>
+      <div class="note" id="note"></div>
+      <div class="announce" id="announce"></div>
+    </div>
+
+    <div class="cards">
+      <div class="card wifi">
+        <div class="text">
+          <div class="kv"><div class="label">Wi‑Fi network</div><div class="big" id="wifi-name"></div></div>
+          <div class="kv"><div class="label">Password</div><div class="big" id="wifi-pass"></div></div>
+          <div class="scan">Scan with your camera to join →</div>
+        </div>
+        <div class="qr" id="wifi-qr"></div>
+      </div>
+      <div class="card times">
+        <div class="kv"><div class="label">Check-in</div><div class="time" id="checkin"></div></div>
+        <div class="kv"><div class="label">Checkout</div><div class="time" id="checkout"></div></div>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <div class="label" id="checklist-title">Before you go</div>
+      <ul id="checklist-items"></ul>
+    </div>
+
+    <div class="tv-hint">Ready to watch? Press <b>Home</b> on the Roku remote.</div>
+  </section>
+
+  <aside class="right">
+    <div class="eyebrow"><span class="dot"></span>Around the neighborhood</div>
+    <div class="slides" id="slides"></div>
+    <div class="dots" id="dots"></div>
+    <div class="guide">
+      <div class="qr" id="guide-qr"></div>
+      <div>
+        <div class="guide-title">Your full guest guide</div>
+        <div class="guide-sub">Arrival, house tips, every spot nearby.<br>Questions? Message us in the Airbnb app.<br>Urgent: <strong id="phone"></strong></div>
+      </div>
+    </div>
+  </aside>
+</main>
+<script src="qrcode.js"></script>
+<script>
+/* ======================================================================
+   SETTINGS
+   After you publish the Google Sheet (File → Share → Publish to web →
+   CSV), paste that link between the quotes below.
+   ====================================================================== */
+const SHEET_CSV_URL = "";
+
+const GUIDE_URL = "https://littlegaragemahal.github.io/handbook/";
+
+/* Used whenever the Sheet is blank, not set up yet, or unreachable. */
+const DEFAULTS = {
+  guest_name: "",
+  guest_checkin: "",
+  guest_checkout: "",
+  welcome_note: "",
+  announcement: "",
+  wifi_network: "Little Garage Mahal",
+  wifi_password: "garageinternet1",
+  checkin_time: "3:00 PM",
+  checkout_time: "11:00 AM",
+  phone: "615.969.4148",
+};
+
+const CHECKOUT_LIST = [
+  "Strip the bed — linens in closet baskets",
+  "Run the dishwasher if needed",
+  "Thermostat to 72 (AC) or 68 (heat)",
+  "Grab your things and lock the door",
+  "Text or message us once you're out",
+];
+
+const AREAS = [
+  { area: "Five Points", where: "11th, Woodland & Clearview · a short walk", spots: [
+    ["Bongo East", "Coffee plus Game Point Cafe's 700+ board games"],
+    ["Five Points Pizza", "The corner slice spot that anchors the neighborhood"],
+    ["Hunter's Station", "Food hall on 10th — Hugh Baby's, Vui's, Kisser"],
+    ["Lipstick Lounge & Chapstick", "Bar & sister sports bar, Woodland & 14th"],
+    ["Reunion", "Rotating lineup of local food vendors"],
+  ]},
+  { area: "Coffee", where: "Close enough to walk, plus a few worth the drive", spots: [
+    ["International Tea and Coffee", "Fatherland St · great breakfast & brunch"],
+    ["Bongo East & Middle Grounds", "Both on S. 11th St · an easy walk"],
+    ["Frothy Monkey", "Fatherland & 17th"],
+    ["Ugly Mugs", "Eastland Ave"],
+    ["Barista Parlor", "Gallatin Ave"],
+  ]},
+  { area: "Woodland & 16th", where: "A quick walk east on Woodland", spots: [
+    ["Urban Cowboy", "Neighborhood favorite for dinner and drinks"],
+    ["Lockeland Table", "Another local favorite for dinner"],
+    ["Mama Bread", "Bakery, coffee, fresh bread & a small market"],
+  ]},
+  { area: "Fatherland & 17th", where: "A few blocks east on Fatherland", spots: [
+    ["Frothy Monkey", "Coffee shop"],
+    ["Olive & Sinclair", "Bean-to-bar chocolate, with factory tours"],
+  ]},
+  { area: "Walden / Rosepepper", where: "Near Eastland & Chapel", spots: [
+    ["Rosepepper", "Mexican food and the famous marquee sign"],
+    ["Two Ten Jack", "Ramen and izakaya"],
+    ["Jeni's Splendid Ice Creams", "Ice cream"],
+    ["Five Daughters Bakery", "Doughnuts and bakery"],
+    ["Ugly Mugs", "Coffee"],
+  ]},
+  { area: "Riverside Village", where: "Riverside Dr. & McGavock Pike · booming lately", spots: [
+    ["Sho Pizza Bar", "Sean Brock's Neapolitan-style pizza"],
+    ["Curry Boys BBQ", "Thai flavors meet Texas smoke"],
+    ["Mitchell's Delicatessen", "Sandwiches"],
+    ["Village Pub & Beer Garden", "Drinks and a big patio"],
+    ["Ladybird Taco & Hattie Jane's", "Tacos, then ice cream"],
+  ]},
+  { area: "McFerrin & W. Eastland", where: "A quick drive or rideshare", spots: [
+    ["Mas Tacos", "Tacos"],
+    ["The Pharmacy Burger Parlor", "Burgers & a beer garden"],
+  ]},
+  { area: "Elsewhere in East Nashville", where: "Worth the short drive", spots: [
+    ["Hearts", "All-day Australian-style cafe, big patio"],
+    ["Red-Headed Stranger", "Tex-Mex tacos, burgers & crunchwraps"],
+    ["Noko", "Asian-inspired, wood-fired, near Porter Rd"],
+    ["Skinny Dennis", "Honky-tonk with live music & dancing"],
+  ]},
+  { area: "Groceries", where: "For stocking the kitchen", spots: [
+    ["The Turnip Truck", "701 Woodland St · natural & organic"],
+    ["Kroger", "711 Gallatin Ave · full-size supermarket"],
+  ]},
+];
+
+const SLIDE_SECONDS = 12;
+
+/* ====================================================================== */
+
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+
+function store(key, value) {
+  try { if (value === undefined) return JSON.parse(localStorage.getItem(key)); localStorage.setItem(key, JSON.stringify(value)); }
+  catch (e) { return null; }
+}
+
+/* ---------- dates ---------- */
+function now() {
+  // ?today=2026-10-30&time=14:00 lets you preview any day.
+  const d = new Date();
+  if (params.get("today")) {
+    const [y, m, day] = params.get("today").split("-").map(Number);
+    d.setFullYear(y, m - 1, day);
+  }
+  if (params.get("time")) {
+    const [h, min] = params.get("time").split(":").map(Number);
+    d.setHours(h, min || 0, 0, 0);
+  }
+  return d;
+}
+const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+function parseDay(text) {
+  // Accepts 2026-10-30, 10/30/2026, 10/30/26, 10/30, "Oct 30"
+  text = String(text || "").trim();
+  if (!text) return "";
+  let m = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return ymd(new Date(+m[1], m[2] - 1, +m[3]));
+  m = text.match(/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?$/);
+  let d;
+  if (m) {
+    let y = m[3] ? +m[3] : now().getFullYear();
+    if (y < 100) y += 2000;
+    d = new Date(y, m[1] - 1, +m[2]);
+    if (!m[3] && now() - d > 60 * 864e5) d.setFullYear(y + 1);
+  } else {
+    d = new Date(text + (/\d{4}/.test(text) ? "" : " " + now().getFullYear()));
+  }
+  return isNaN(d) ? "" : ymd(d);
+}
+function niceDay(s) {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+function minutesOf(timeText, fallback) {
+  const m = String(timeText || "").match(/(\d{1,2})(?::(\d{2}))?\s*([ap])?/i);
+  if (!m) return fallback;
+  let h = +m[1] % 12;
+  if (!m[3] ? +m[1] >= 12 : /p/i.test(m[3])) h += 12;
+  return h * 60 + (+m[2] || 0);
+}
+
+/* ---------- data sources ---------- */
+let settings = Object.assign({}, DEFAULTS, store("lgm-settings") || {});
+let stays = store("lgm-stays") || [];
+
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') q = false;
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += c;
+  }
+  row.push(cell); rows.push(row);
+  return rows;
+}
+
+async function loadSheet() {
+  if (!SHEET_CSV_URL) return;
+  try {
+    const res = await fetch(SHEET_CSV_URL + (SHEET_CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) return;
+    const next = Object.assign({}, DEFAULTS);
+    const list = [];
+    for (const [k, v = ""] of parseCSV(await res.text())) {
+      const key = String(k || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+      const val = String(v).trim();
+      if (!key || key === "setting") continue;
+      if (/^checkout_\d+$/.test(key)) { if (val) list.push(val); continue; }
+      if (key in DEFAULTS) next[key] = val || DEFAULTS[key];
+      else if (val) next[key] = val;
+    }
+    if (list.length) next.checkout_list = list;
+    settings = next;
+    store("lgm-settings", settings);
+    render();
+  } catch (e) { /* keep showing the last good values */ }
+}
+
+async function loadStays() {
+  try {
+    const res = await fetch("stay.json?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    stays = Array.isArray(data.stays) ? data.stays : [];
+    store("lgm-stays", stays);
+    render();
+  } catch (e) { /* keep showing the last good values */ }
+}
+
+/* ---------- which stay is it right now? ---------- */
+function currentStay() {
+  const d = now();
+  const today = ymd(d);
+  const mins = d.getHours() * 60 + d.getMinutes();
+  const checkoutMins = minutesOf(settings.checkout_time, 11 * 60);
+
+  const all = stays.map((s) => ({ start: s.start, end: s.end }));
+  // Dates typed in the Sheet also count (handy before the calendar job is set up).
+  const sIn = parseDay(settings.guest_checkin), sOut = parseDay(settings.guest_checkout);
+  if (sIn && sOut && !all.some((s) => s.start === sIn)) all.push({ start: sIn, end: sOut });
+  // Preview: ?stay=2026-10-30,2026-11-02
+  if (params.get("stay")) { const [a, b] = params.get("stay").split(","); all.push({ start: parseDay(a), end: parseDay(b) }); }
+
+  // On a turnover day the outgoing guest owns the screen until checkout time.
+  const active = all.filter((s) => s.start <= today && today <= s.end &&
+    !(today === s.end && mins >= checkoutMins));
+  active.sort((a, b) => a.start.localeCompare(b.start));
+  return active[0] || null;
+}
+
+/* ---------- render ---------- */
+function fitName() {
+  const el = $("name");
+  el.style.fontSize = "";
+  const max = el.parentElement.clientWidth;
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  while (el.scrollWidth > max && size > 20) { size -= 2; el.style.fontSize = size + "px"; }
+}
+
+function render() {
+  if (params.has("name")) settings.guest_name = params.get("name");
+  const stay = currentStay();
+  const today = ymd(now());
+  const sIn = parseDay(settings.guest_checkin);
+  // A name only appears if its check-in date matches the stay on the calendar,
+  // so last week's guest never greets the next one by accident.
+  const guest = stay && settings.guest_name &&
+    (params.has("name") || (sIn ? sIn === stay.start : !stays.length))
+    ? settings.guest_name.trim() : "";
+  const leavingToday = stay && stay.end === today;
+
+  if (stay) {
+    $("hello").textContent = leavingToday ? "Thanks for staying," : "Welcome,";
+    $("name").innerHTML = "";
+    $("name").append(guest || (leavingToday ? "friend" : "y'all"));
+    const dot = document.createElement("span"); dot.className = "accent"; dot.textContent = leavingToday ? "." : "!";
+    $("name").append(dot);
+    $("dates").textContent = leavingToday
+      ? `Checkout today at ${settings.checkout_time} — safe travels`
+      : `Your stay · ${niceDay(stay.start)} → ${niceDay(stay.end)}`;
+  } else {
+    $("hello").textContent = "Welcome to the";
+    $("name").innerHTML = 'Little Garage Mahal<span class="accent">.</span>';
+    $("dates").textContent = "";
+  }
+  // The personal note follows the same rule as the name.
+  $("note").textContent = stay && (!sIn || sIn === stay.start) ? settings.welcome_note || "" : "";
+  $("announce").textContent = settings.announcement || "";
+
+  $("wifi-name").textContent = settings.wifi_network;
+  $("wifi-pass").textContent = settings.wifi_password;
+  $("checkin").textContent = settings.checkin_time;
+  $("checkout").textContent = settings.checkout_time;
+  $("phone").textContent = settings.phone;
+
+  $("checklist").classList.toggle("today", !!leavingToday);
+  $("checklist-title").textContent = leavingToday ? `Before you go · by ${settings.checkout_time}` : "Before you go";
+  $("checklist-items").replaceChildren(...(settings.checkout_list || CHECKOUT_LIST).slice(0, 6).map((t) => {
+    const li = document.createElement("li"); li.textContent = t; return li;
+  }));
+
+  drawQR($("wifi-qr"), wifiString(settings.wifi_network, settings.wifi_password));
+  fitName();
+}
+
+function wifiString(ssid, pass) {
+  const esc = (s) => String(s).replace(/([\\;,:"])/g, "\\$1");
+  return `WIFI:T:WPA;S:${esc(ssid)};P:${esc(pass)};;`;
+}
+let qrCache = {};
+function drawQR(el, text) {
+  if (qrCache[el.id] === text) return;
+  qrCache[el.id] = text;
+  const qr = qrcode(0, "M");
+  qr.addData(text);
+  qr.make();
+  el.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+}
+
+/* ---------- neighborhood slides ---------- */
+function buildSlides() {
+  const wrap = $("slides"), dots = $("dots");
+  AREAS.forEach((a, i) => {
+    const s = document.createElement("div");
+    s.className = "slide" + (i === 0 ? " on" : "");
+    const h = document.createElement("div"); h.className = "area"; h.textContent = a.area;
+    const w = document.createElement("div"); w.className = "where"; w.textContent = a.where;
+    const ul = document.createElement("ul"); ul.className = "spots";
+    a.spots.slice(0, 5).forEach(([name, note]) => {
+      const li = document.createElement("li");
+      const n = document.createElement("div"); n.className = "spot"; n.textContent = name;
+      const d = document.createElement("div"); d.className = "spot-note"; d.textContent = note;
+      li.append(n, d); ul.append(li);
+    });
+    s.append(h, w, ul); wrap.append(s);
+    const dot = document.createElement("i"); if (i === 0) dot.className = "on"; dots.append(dot);
+  });
+  let i = 0;
+  setInterval(() => {
+    wrap.children[i].classList.remove("on"); dots.children[i].classList.remove("on");
+    i = (i + 1) % AREAS.length;
+    wrap.children[i].classList.add("on"); dots.children[i].classList.add("on");
+  }, SLIDE_SECONDS * 1000);
+}
+
+/* ---------- start ---------- */
+drawQR($("guide-qr"), GUIDE_URL);
+buildSlides();
+render();
+loadSheet();
+loadStays();
+setInterval(loadSheet, 60 * 1000);           // Sheet edits show up within a minute
+setInterval(loadStays, 15 * 60 * 1000);      // calendar file changes a few times a day
+setInterval(render, 60 * 1000);              // roll over at checkout time / midnight
+window.addEventListener("resize", fitName);
+document.fonts && document.fonts.ready.then(fitName);
+
+// Nudge the layout a few pixels now and then so nothing sits still for days.
+const drift = [[0, 0], [3, 2], [-2, 3], [2, -3], [-3, -2]];
+let di = 0;
+setInterval(() => { di = (di + 1) % drift.length; $("screen").style.transform = `translate(${drift[di][0]}px, ${drift[di][1]}px)`; }, 10 * 60 * 1000);
+
+// Reload once a day (around 4 AM) to pick up any design changes.
+setInterval(() => { const d = new Date(); if (d.getHours() === 4 && d.getMinutes() < 2) location.reload(); }, 60 * 1000);
+</script>
+</body>
+</html>

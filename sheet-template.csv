@@ -1,0 +1,16 @@
+setting,value,notes
+guest_name,,"FIRST NAME ONLY (this screen is a public web page) — e.g. Sarah or Mike & Jen"
+guest_checkin,,"That guest's check-in date, e.g. 10/30/2026. The name only shows during that stay."
+guest_checkout,,"Optional — only needed if the calendar job isn't set up"
+welcome_note,,"Optional, keep it generic — e.g. Happy anniversary! (no last names, events, or details)"
+announcement,,"Optional gold banner, e.g. Trash pickup Tuesday morning"
+wifi_network,Little Garage Mahal,
+wifi_password,garageinternet1,
+checkin_time,3:00 PM,
+checkout_time,11:00 AM,
+phone,615.969.4148,
+checkout_1,,"Optional: fill checkout_1 to checkout_6 to replace the Before You Go list"
+checkout_2,,
+checkout_3,,
+checkout_4,,
+checkout_5,,
