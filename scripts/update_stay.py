@@ -10,6 +10,7 @@ past stays builds up in the repository.
 """
 import json
 import os
+import re
 import sys
 import urllib.request
 from datetime import date, datetime, timedelta
@@ -60,6 +61,41 @@ def read_stays(url):
     return sorted(stays, key=lambda s: s["start"])
 
 
+def parse_day(text, today):
+    """2026-10-29, 10/29/2026, 10/29/26 or 10/29 (year guessed)."""
+    m = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", text)
+    if m:
+        return date(int(m[1]), int(m[2]), int(m[3]))
+    m = re.fullmatch(r"(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?", text)
+    if not m:
+        return None
+    if m[3]:
+        year = int(m[3]) + (2000 if len(m[3]) == 2 else 0)
+        return date(year, int(m[1]), int(m[2]))
+    d = date(today.year, int(m[1]), int(m[2]))
+    return d.replace(year=today.year + 1) if (today - d).days > 60 else d
+
+
+def extra_stays(text):
+    """Friend stays typed into the EXTRA_STAYS repository variable, one per line:
+    10/29 to 11/1   (any two dates on a line: check-in, then checkout)."""
+    today = datetime.now(TZ).date()
+    horizon = today + timedelta(days=LOOKAHEAD_DAYS)
+    stays = []
+    for line in (text or "").splitlines():
+        found = re.findall(r"\d{4}-\d{1,2}-\d{1,2}|\d{1,2}/\d{1,2}(?:/\d{2,4})?", line)
+        if len(found) < 2:
+            continue
+        start, end = parse_day(found[0], today), parse_day(found[1], today)
+        if not start or not end:
+            continue
+        if end < start:  # e.g. 12/30 to 1/2
+            end = end.replace(year=end.year + 1)
+        if end >= today and start <= horizon:
+            stays.append({"start": start.isoformat(), "end": end.isoformat()})
+    return stays
+
+
 def live_stays():
     """If Airbnb is unreachable, reuse what the live site already shows."""
     url = os.environ.get("LIVE_STAY_URL", "").strip()
@@ -85,6 +121,10 @@ def main():
         except Exception as e:  # never block a publish over the calendar
             print(f"::warning::Couldn't read the Airbnb calendar ({e}) — keeping the dates already live.")
             stays = live_stays()
+    for extra in extra_stays(os.environ.get("EXTRA_STAYS", "")):
+        if extra not in stays:
+            stays.append(extra)
+    stays.sort(key=lambda s: s["start"])
     with open(out, "w") as f:
         json.dump({"stays": stays}, f, indent=2)
         f.write("\n")
