@@ -100,6 +100,8 @@
     transition: background .6s, border-color .6s;
   }
   .checklist.today { background: var(--white); border-color: var(--gold); border-width: 2px; }
+  .checklist-head { display: flex; align-items: baseline; gap: calc(var(--u) * 1.4); }
+  .checklist-sub { font-size: calc(var(--u) * 1.05); font-weight: 600; color: var(--charcoal-soft); }
   .checklist ul {
     list-style: none; margin-top: calc(var(--u) * .7);
     display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * .55) calc(var(--u) * 2);
@@ -198,7 +200,10 @@
     </div>
 
     <div class="checklist" id="checklist">
-      <div class="label" id="checklist-title">Before you go</div>
+      <div class="checklist-head">
+        <div class="label" id="checklist-title">Before you go</div>
+        <div class="checklist-sub">Nothing required — these just help. Thank you!</div>
+      </div>
       <ul id="checklist-items"></ul>
     </div>
 
@@ -244,8 +249,8 @@ const DEFAULTS = {
 };
 
 const CHECKOUT_LIST = [
-  "Strip the bed — linens in closet baskets",
-  "Run the dishwasher if needed",
+  "Leave used dishes in the sink",
+  "Drop used towels in the closet baskets",
   "Thermostat to 72 (AC) or 68 (heat)",
   "Grab your things and lock the door",
   "Text or message us once you're out",
@@ -491,7 +496,7 @@ function render() {
   $("phone").textContent = settings.phone;
 
   $("checklist").classList.toggle("today", !!leavingToday);
-  $("checklist-title").textContent = leavingToday ? `Before you go · by ${settings.checkout_time}` : "Before you go";
+  $("checklist-title").textContent = leavingToday ? `Before you go · checkout ${settings.checkout_time}` : "Before you go";
   $("checklist-items").replaceChildren(...(settings.checkout_list || CHECKOUT_LIST).slice(0, 6).map((t) => {
     const li = document.createElement("li"); li.textContent = t; return li;
   }));
