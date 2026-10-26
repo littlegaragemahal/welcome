@@ -100,6 +100,7 @@
     transition: background .6s, border-color .6s;
   }
   .checklist.today { background: var(--white); border-color: var(--gold); border-width: 2px; }
+  .checklist li.wide { grid-column: 1 / -1; white-space: normal; }
   .checklist-head { display: flex; align-items: baseline; gap: calc(var(--u) * 1.4); }
   .checklist-sub { font-size: calc(var(--u) * 1.05); font-weight: 600; color: var(--charcoal-soft); }
   .checklist ul {
@@ -253,7 +254,7 @@ const DEFAULTS = {
 const CHECKOUT_LIST = [
   "Strip the bed — linens in closet basket",
   "Run the dishwasher if needed",
-  "Thermostat to 72 (AC) or 68 (heat)",
+  "{thermostat}",
   "Grab your things and lock the door",
   "Text or message us once you're out",
 ];
@@ -500,11 +501,32 @@ function render() {
   $("checklist").classList.toggle("today", !!leavingToday);
   $("checklist-title").textContent = leavingToday ? `Before you go · checkout ${settings.checkout_time}` : "Before you go";
   $("checklist-items").replaceChildren(...(settings.checkout_list || CHECKOUT_LIST).slice(0, 6).map((t) => {
-    const li = document.createElement("li"); li.textContent = t; return li;
+    const li = document.createElement("li");
+    if (t === "{thermostat}") { li.className = "wide"; li.textContent = thermostatLine(); }
+    else li.textContent = t;
+    return li;
   }));
 
   drawQR($("wifi-qr"), wifiString(settings.wifi_network, settings.wifi_password));
   fitName();
+}
+
+/* ---------- thermostat (same rule as the guest guide) ---------- */
+let outsideTemp = null;
+function thermostatLine() {
+  if (typeof outsideTemp !== "number") return "Thermostat: under 50° outside, heat 68 · over 75°, AC 72 · otherwise heat 65 or AC 75";
+  const r = Math.round(outsideTemp);
+  if (r < 50) return `Thermostat: set heat to 68 (${r}° outside)`;
+  if (r > 75) return `Thermostat: set AC to 72 (${r}° outside)`;
+  return `Thermostat: set heat to 65 or AC to 75 (${r}° outside)`;
+}
+async function loadWeather() {
+  try {
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=36.1773&longitude=-86.7457&current=temperature_2m&temperature_unit=fahrenheit&timezone=America%2FChicago", { cache: "no-store" });
+    if (!res.ok) return;
+    const t = (await res.json()).current?.temperature_2m;
+    if (typeof t === "number") { outsideTemp = t; render(); }
+  } catch (e) { /* keep the last reading, or the full rule */ }
 }
 
 function wifiString(ssid, pass) {
@@ -554,7 +576,9 @@ render();
 loadSheet();
 loadStays();
 setInterval(loadSheet, 60 * 1000);           // Sheet edits show up within a minute
-setInterval(loadStays, 15 * 60 * 1000);      // calendar file changes a few times a day
+setInterval(loadStays, 15 * 60 * 1000);
+loadWeather();
+setInterval(loadWeather, 20 * 60 * 1000);   // outside temp for the thermostat line      // calendar file changes a few times a day
 setInterval(render, 60 * 1000);              // roll over at checkout time / midnight
 window.addEventListener("resize", fitName);
 document.fonts && document.fonts.ready.then(fitName);
