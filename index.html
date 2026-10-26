@@ -164,6 +164,24 @@
   .guide-sub { margin-top: calc(var(--u) * .3); font-size: calc(var(--u) * 1.02); color: var(--muted-on-dark); line-height: 1.35; }
   .guide-sub strong { color: var(--white); font-weight: 700; }
 
+  .weather {
+    margin-top: calc(var(--u) * 2);
+    display: flex; align-items: center; gap: calc(var(--u) * 2.4);
+  }
+  .weather[hidden] { display: none; }
+  .wx-now { display: flex; align-items: center; gap: calc(var(--u) * 1); }
+  .wx-emoji { font-size: calc(var(--u) * 3.2); line-height: 1; }
+  .wx-temp { font-size: calc(var(--u) * 2.6); font-weight: 800; line-height: 1; }
+  .wx-desc { margin-top: calc(var(--u) * .35); font-size: calc(var(--u) * 1.05); font-weight: 600; color: var(--charcoal-soft); white-space: nowrap; }
+  .wx-days {
+    display: flex; gap: calc(var(--u) * 1.8);
+    padding-left: calc(var(--u) * 2.4); border-left: 1px solid var(--line);
+  }
+  .wx-day { text-align: center; }
+  .wx-day-label { font-size: calc(var(--u) * .95); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--charcoal-soft); }
+  .wx-day .wx-emoji { font-size: calc(var(--u) * 1.8); margin: calc(var(--u) * .3) 0; }
+  .wx-hilo { font-size: calc(var(--u) * 1.1); font-weight: 700; white-space: nowrap; }
+  .wx-hilo span { color: var(--charcoal-soft); font-weight: 600; }
   .announce {
     display: inline-block; margin-top: calc(var(--u) * 1.6);
     background: var(--gold); color: var(--charcoal);
@@ -184,6 +202,16 @@
       <div class="dates" id="dates"></div>
       <div class="note" id="note"></div>
       <div class="announce" id="announce"></div>
+      <div class="weather" id="weather" hidden>
+        <div class="wx-now">
+          <div class="wx-emoji" id="wx-icon"></div>
+          <div>
+            <div class="wx-temp" id="wx-temp"></div>
+            <div class="wx-desc" id="wx-desc"></div>
+          </div>
+        </div>
+        <div class="wx-days" id="wx-days"></div>
+      </div>
     </div>
 
     <div class="cards">
@@ -512,6 +540,37 @@ function render() {
 
 /* ---------- thermostat (same rule as the guest guide) ---------- */
 let outsideTemp = null;
+const WX = {
+  0: ["\u2600\uFE0F", "Clear sky"], 1: ["\uD83C\uDF24\uFE0F", "Mostly clear"], 2: ["\u26C5", "Partly cloudy"],
+  3: ["\u2601\uFE0F", "Overcast"], 45: ["\uD83C\uDF2B\uFE0F", "Foggy"], 48: ["\uD83C\uDF2B\uFE0F", "Foggy"],
+  51: ["\uD83C\uDF26\uFE0F", "Light drizzle"], 53: ["\uD83C\uDF26\uFE0F", "Drizzle"], 55: ["\uD83C\uDF27\uFE0F", "Dense drizzle"],
+  56: ["\uD83C\uDF27\uFE0F", "Freezing drizzle"], 57: ["\uD83C\uDF27\uFE0F", "Freezing drizzle"],
+  61: ["\uD83C\uDF27\uFE0F", "Light rain"], 63: ["\uD83C\uDF27\uFE0F", "Rain"], 65: ["\uD83C\uDF27\uFE0F", "Heavy rain"],
+  66: ["\uD83C\uDF27\uFE0F", "Freezing rain"], 67: ["\uD83C\uDF27\uFE0F", "Freezing rain"],
+  71: ["\uD83C\uDF28\uFE0F", "Light snow"], 73: ["\uD83C\uDF28\uFE0F", "Snow"], 75: ["\u2744\uFE0F", "Heavy snow"], 77: ["\u2744\uFE0F", "Snow grains"],
+  80: ["\uD83C\uDF26\uFE0F", "Rain showers"], 81: ["\uD83C\uDF27\uFE0F", "Rain showers"], 82: ["\u26C8\uFE0F", "Violent showers"],
+  85: ["\uD83C\uDF28\uFE0F", "Snow showers"], 86: ["\u2744\uFE0F", "Snow showers"],
+  95: ["\u26C8\uFE0F", "Thunderstorm"], 96: ["\u26C8\uFE0F", "Thunderstorm w/ hail"], 99: ["\u26C8\uFE0F", "Thunderstorm w/ hail"],
+};
+const wx = (code) => WX[code] || ["\uD83C\uDF24\uFE0F", "Weather"];
+
+function renderWeather(data) {
+  const cur = data.current, daily = data.daily;
+  if (!cur || !daily) return;
+  $("wx-icon").textContent = wx(cur.weather_code)[0];
+  $("wx-temp").textContent = Math.round(cur.temperature_2m) + "°F";
+  $("wx-desc").textContent = `${wx(cur.weather_code)[1]} · feels like ${Math.round(cur.apparent_temperature)}°`;
+  $("wx-days").replaceChildren(...daily.time.slice(0, 4).map((day, i) => {
+    const d = document.createElement("div"); d.className = "wx-day";
+    const label = i === 0 ? "Today" : new Date(day + "T12:00:00").toLocaleDateString("en-US", { weekday: "short" });
+    d.innerHTML = '<div class="wx-day-label"></div><div class="wx-emoji"></div><div class="wx-hilo"></div>';
+    d.children[0].textContent = label;
+    d.children[1].textContent = wx(daily.weather_code[i])[0];
+    d.children[2].innerHTML = `${Math.round(daily.temperature_2m_max[i])}° <span>${Math.round(daily.temperature_2m_min[i])}°</span>`;
+    return d;
+  }));
+  $("weather").hidden = false;
+}
 function thermostatLine() {
   if (typeof outsideTemp !== "number") return "";  // no reading: hide the line
   const r = Math.round(outsideTemp);
@@ -521,9 +580,13 @@ function thermostatLine() {
 }
 async function loadWeather() {
   try {
-    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=36.1773&longitude=-86.7457&current=temperature_2m&temperature_unit=fahrenheit&timezone=America%2FChicago", { cache: "no-store" });
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=36.1773&longitude=-86.7457" +
+      "&current=temperature_2m,apparent_temperature,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min" +
+      "&temperature_unit=fahrenheit&timezone=America%2FChicago&forecast_days=4", { cache: "no-store" });
     if (!res.ok) return;
-    const t = (await res.json()).current?.temperature_2m;
+    const data = await res.json();
+    renderWeather(data);
+    const t = data.current?.temperature_2m;
     if (typeof t === "number") { outsideTemp = t; render(); }
   } catch (e) { /* keep the last reading, or the full rule */ }
 }
