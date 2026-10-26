@@ -100,7 +100,6 @@
     transition: background .6s, border-color .6s;
   }
   .checklist.today { background: var(--white); border-color: var(--gold); border-width: 2px; }
-  .checklist li.wide { grid-column: 1 / -1; white-space: normal; }
   .checklist-head { display: flex; align-items: baseline; gap: calc(var(--u) * 1.4); }
   .checklist-sub { font-size: calc(var(--u) * 1.05); font-weight: 600; color: var(--charcoal-soft); }
   .checklist ul {
@@ -500,11 +499,11 @@ function render() {
 
   $("checklist").classList.toggle("today", !!leavingToday);
   $("checklist-title").textContent = leavingToday ? `Before you go · checkout ${settings.checkout_time}` : "Before you go";
-  $("checklist-items").replaceChildren(...(settings.checkout_list || CHECKOUT_LIST).slice(0, 6).map((t) => {
-    const li = document.createElement("li");
-    if (t === "{thermostat}") { li.className = "wide"; li.textContent = thermostatLine(); }
-    else li.textContent = t;
-    return li;
+  const items = (settings.checkout_list || CHECKOUT_LIST)
+    .map((t) => (t === "{thermostat}" ? thermostatLine() : t))
+    .filter(Boolean).slice(0, 6);
+  $("checklist-items").replaceChildren(...items.map((t) => {
+    const li = document.createElement("li"); li.textContent = t; return li;
   }));
 
   drawQR($("wifi-qr"), wifiString(settings.wifi_network, settings.wifi_password));
@@ -514,11 +513,11 @@ function render() {
 /* ---------- thermostat (same rule as the guest guide) ---------- */
 let outsideTemp = null;
 function thermostatLine() {
-  if (typeof outsideTemp !== "number") return "Thermostat: under 50° outside, heat 68 · over 75°, AC 72 · otherwise heat 65 or AC 75";
+  if (typeof outsideTemp !== "number") return "";  // no reading: hide the line
   const r = Math.round(outsideTemp);
-  if (r < 50) return `Thermostat: set heat to 68 (${r}° outside)`;
-  if (r > 75) return `Thermostat: set AC to 72 (${r}° outside)`;
-  return `Thermostat: set heat to 65 or AC to 75 (${r}° outside)`;
+  if (r < 50) return "Thermostat: set heat to 68";
+  if (r > 75) return "Thermostat: set AC to 72";
+  return "";  // mild weather: no thermostat ask
 }
 async function loadWeather() {
   try {
