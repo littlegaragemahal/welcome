@@ -462,10 +462,15 @@ function render() {
   const leavingToday = stay && stay.end === today;
 
   if (stay) {
-    $("hello").textContent = leavingToday ? "Thanks for staying," : "Welcome,";
     $("name").innerHTML = "";
-    $("name").append(guest || (leavingToday ? "friend" : "y'all"));
-    const dot = document.createElement("span"); dot.className = "accent"; dot.textContent = leavingToday ? "." : "!";
+    if (guest) {
+      $("hello").textContent = leavingToday ? "Thanks for staying," : "Welcome,";
+      $("name").append(guest);
+    } else {
+      $("hello").textContent = leavingToday ? "Thanks for staying at the" : "Welcome to the";
+      $("name").append("Little Garage Mahal");
+    }
+    const dot = document.createElement("span"); dot.className = "accent"; dot.textContent = ".";
     $("name").append(dot);
     $("dates").textContent = leavingToday
       ? `Checkout today at ${settings.checkout_time} — safe travels`
