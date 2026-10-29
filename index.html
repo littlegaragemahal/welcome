@@ -43,11 +43,20 @@
 
 
   /* ---------- background: soft photo of the house ---------- */
-  body.look-photo {
-    background:
-      linear-gradient(180deg, rgba(233,234,236,.55), rgba(233,234,236,.82) 45%, rgba(233,234,236,.95) 75%),
-      url("bg-house.jpg") center top / cover no-repeat, var(--cream);
+  body.look-photo { background: transparent; }
+  body.look-photo::before {
+    content: ""; position: fixed; z-index: -1; pointer-events: none;
+    left: calc(var(--u) * 3.4); top: calc(var(--u) * -5.4);
+    width: calc(var(--u) * 56); aspect-ratio: 3 / 2;
+    background: url("bg-house.jpg") center / cover no-repeat;
+    opacity: .55;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 60% 52%, #000 45%, transparent 100%);
+            mask-image: radial-gradient(ellipse 50% 50% at 60% 52%, #000 45%, transparent 100%);
   }
+  body.look-photo .eyebrow, body.look-photo .greeting, body.look-photo .weather {
+    text-shadow: 0 0 calc(var(--u) * 1) rgba(236,237,239,.95), 0 0 calc(var(--u) * .3) rgba(236,237,239,.9);
+  }
+  body.look-photo .right .eyebrow { text-shadow: none; }
   body.look-photo .card, body.look-photo .checklist { background: rgba(255,255,255,.88); }
   body.look-photo .checklist:not(.today) { background: rgba(255,255,255,.55); }
 
