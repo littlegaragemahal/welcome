@@ -80,7 +80,7 @@ def extra_stays(text):
     """Stays typed into the EXTRA_STAYS repository variable, one per line:
         10/29 to 11/1 Marla, Marlo & Rachel
     Two dates (check-in, then checkout) and an optional first-name greeting.
-    A line whose dates match an Airbnb booking just adds the name to it."""
+    A line whose check-in matches an Airbnb booking just adds the name to it."""
     today = datetime.now(TZ).date()
     horizon = today + timedelta(days=LOOKAHEAD_DAYS)
     stays = []
@@ -129,7 +129,8 @@ def main():
             print(f"::warning::Couldn't read the Airbnb calendar ({e}) — keeping the dates already live.")
             stays = live_stays()
     for extra in extra_stays(os.environ.get("EXTRA_STAYS", "")):
-        same = [s for s in stays if s["start"] == extra["start"] and s["end"] == extra["end"]]
+        # Airbnb owns the dates; a typed line with the same check-in just adds the name.
+        same = [s for s in stays if s["start"] == extra["start"]]
         if same:
             if extra.get("name"):
                 same[0]["name"] = extra["name"]
