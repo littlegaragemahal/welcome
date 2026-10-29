@@ -77,22 +77,29 @@ def parse_day(text, today):
 
 
 def extra_stays(text):
-    """Friend stays typed into the EXTRA_STAYS repository variable, one per line:
-    10/29 to 11/1   (any two dates on a line: check-in, then checkout)."""
+    """Stays typed into the EXTRA_STAYS repository variable, one per line:
+        10/29 to 11/1 Marla, Marlo & Rachel
+    Two dates (check-in, then checkout) and an optional first-name greeting.
+    A line whose dates match an Airbnb booking just adds the name to it."""
     today = datetime.now(TZ).date()
     horizon = today + timedelta(days=LOOKAHEAD_DAYS)
     stays = []
     for line in (text or "").splitlines():
-        found = re.findall(r"\d{4}-\d{1,2}-\d{1,2}|\d{1,2}/\d{1,2}(?:/\d{2,4})?", line)
-        if len(found) < 2:
+        matches = list(re.finditer(r"\d{4}-\d{1,2}-\d{1,2}|\d{1,2}/\d{1,2}(?:/\d{2,4})?", line))
+        if len(matches) < 2:
             continue
+        found = [m.group(0) for m in matches[:2]]
+        name = re.sub(r"^[\s\-–—:,.]+", "", line[matches[1].end():]).strip()[:60]
         start, end = parse_day(found[0], today), parse_day(found[1], today)
         if not start or not end:
             continue
         if end < start:  # e.g. 12/30 to 1/2
             end = end.replace(year=end.year + 1)
         if end >= today and start <= horizon:
-            stays.append({"start": start.isoformat(), "end": end.isoformat()})
+            stay = {"start": start.isoformat(), "end": end.isoformat()}
+            if name:
+                stay["name"] = name
+            stays.append(stay)
     return stays
 
 
@@ -122,7 +129,11 @@ def main():
             print(f"::warning::Couldn't read the Airbnb calendar ({e}) — keeping the dates already live.")
             stays = live_stays()
     for extra in extra_stays(os.environ.get("EXTRA_STAYS", "")):
-        if extra not in stays:
+        same = [s for s in stays if s["start"] == extra["start"] and s["end"] == extra["end"]]
+        if same:
+            if extra.get("name"):
+                same[0]["name"] = extra["name"]
+        else:
             stays.append(extra)
     stays.sort(key=lambda s: s["start"])
     with open(out, "w") as f:
