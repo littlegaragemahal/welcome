@@ -44,8 +44,9 @@
 
   /* ---------- background: soft photo of the house ---------- */
   body.look-photo { background: transparent; }
-  body.look-photo::before {
-    content: ""; position: fixed; z-index: -1; pointer-events: none;
+  body.look-photo .screen { position: relative; isolation: isolate; }
+  body.look-photo .screen::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
     left: calc(var(--u) * 3.4); top: calc(var(--u) * -5.4);
     width: calc(var(--u) * 56); aspect-ratio: 3 / 2;
     background: url("bg-house.jpg") center / cover no-repeat;
