@@ -461,7 +461,7 @@ function currentStay() {
   const mins = d.getHours() * 60 + d.getMinutes();
   const checkoutMins = minutesOf(settings.checkout_time, 11 * 60);
 
-  const all = stays.map((s) => ({ start: s.start, end: s.end }));
+  const all = stays.map((s) => ({ start: s.start, end: s.end, name: s.name || "" }));
   // Dates typed in the Sheet also count (handy before the calendar job is set up).
   const sIn = parseDay(settings.guest_checkin), sOut = parseDay(settings.guest_checkout);
   if (sIn && sOut && !all.some((s) => s.start === sIn)) all.push({ start: sIn, end: sOut });
@@ -491,9 +491,9 @@ function render() {
   const sIn = parseDay(settings.guest_checkin);
   // A name only appears if its check-in date matches the stay on the calendar,
   // so last week's guest never greets the next one by accident.
-  const guest = stay && settings.guest_name &&
-    (params.has("name") || (sIn ? sIn === stay.start : !stays.length))
-    ? settings.guest_name.trim() : "";
+  const guest = !stay ? "" :
+    params.has("name") ? params.get("name").trim() :
+    (stay.name || "").trim();
   const leavingToday = stay && stay.end === today;
 
   if (stay) {
