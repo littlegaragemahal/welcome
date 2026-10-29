@@ -40,7 +40,7 @@ jobs:
           LIVE_STAY_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/stay.json
         run: |
           mkdir _site
-          cp index.html qrcode.js _site/
+          cp index.html qrcode.js bg-house.jpg _site/
           python scripts/update_stay.py _site/stay.json
 
       - uses: actions/configure-pages@v5
