@@ -41,6 +41,16 @@
     transition: transform 4s ease;
   }
 
+
+  /* ---------- background: soft photo of the house ---------- */
+  body.look-photo {
+    background:
+      linear-gradient(180deg, rgba(233,234,236,.55), rgba(233,234,236,.82) 45%, rgba(233,234,236,.95) 75%),
+      url("bg-house.jpg") center top / cover no-repeat, var(--cream);
+  }
+  body.look-photo .card, body.look-photo .checklist { background: rgba(255,255,255,.88); }
+  body.look-photo .checklist:not(.today) { background: rgba(255,255,255,.55); }
+
   /* ---------- left column ---------- */
   .left { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .eyebrow {
@@ -346,6 +356,8 @@ const SLIDE_SECONDS = 12;
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
+const LOOK = params.get("look") || "photo";
+if (LOOK) document.body.classList.add("look-" + LOOK);
 
 function store(key, value) {
   try { if (value === undefined) return JSON.parse(localStorage.getItem(key)); localStorage.setItem(key, JSON.stringify(value)); }
